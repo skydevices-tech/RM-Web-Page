@@ -1,0 +1,1281 @@
+body {
+    margin: 0;
+    font-family: 'Roboto', monospace;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f4f6fb 100%);
+    color: #222;
+    min-height: 100vh;
+}
+
+/* 信号容器样式 */
+.signal-container {
+    position: relative;
+    width: 50px;
+    height: 45px;
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    /* 信号格之间的间距 */
+    padding-bottom: 5px;
+}
+
+/* 信号格基础样式 */
+.signal-bar {
+    width: 8px;
+    /* 所有信号格宽度一致 */
+    background-color: #e0e0e0;
+    /* 默认灰色 */
+    border-radius: 1px;
+    /* 轻微圆角 */
+    transition: background-color 0.25s ease;
+    /* 平滑过渡 */
+}
+
+/* 每个信号格的高度（左到右递增，梯子样式） */
+.bar-1 {
+    height: 10px;
+}
+
+/* 最左，最弱 */
+.bar-2 {
+    height: 20px;
+}
+
+.bar-3 {
+    height: 30px;
+}
+
+.bar-4 {
+    height: 40px;
+}
+
+/* 最右，最强 */
+
+/* 红叉样式（两个交叉的线条） */
+.cross {
+    position: absolute;
+    background-color: #ff4444;
+    width: 2px;
+    height: 12px;
+    border-radius: 1px;
+    transition: opacity 0.25s ease;
+    opacity: 0;
+    /* 默认隐藏 */
+}
+
+/* 红叉位置：在第二个和第三个信号格之间 */
+.cross-1 {
+    top: 18px;
+    left: 22px;
+    transform: rotate(45deg);
+}
+
+.cross-2 {
+    top: 18px;
+    left: 22px;
+    transform: rotate(-45deg);
+}
+
+/* 状态1：未连接（全灰 + 显示红叉） */
+.state-disconnected .cross {
+    opacity: 1;
+    /* 显示红叉 */
+}
+
+.state-disconnected .signal-bar {
+    background-color: #e0e0e0;
+    /* 全灰 */
+}
+
+/* 状态2：1格信号（仅最左1格绿） */
+.state-signal-1 .bar-1 {
+    background-color: #4CAF50;
+    /* 绿色 */
+}
+
+.state-signal-1 .bar-2,
+.state-signal-1 .bar-3,
+.state-signal-1 .bar-4 {
+    background-color: #e0e0e0;
+    /* 灰色 */
+}
+
+/* 状态3：2格信号（左2格绿） */
+.state-signal-2 .bar-1,
+.state-signal-2 .bar-2 {
+    background-color: #4CAF50;
+}
+
+.state-signal-2 .bar-3,
+.state-signal-2 .bar-4 {
+    background-color: #e0e0e0;
+}
+
+/* 状态4：3格信号（左3格绿） */
+.state-signal-3 .bar-1,
+.state-signal-3 .bar-2,
+.state-signal-3 .bar-3 {
+    background-color: #4CAF50;
+}
+
+.state-signal-3 .bar-4 {
+    background-color: #e0e0e0;
+}
+
+/* 状态5：4格信号（全绿） */
+.state-signal-4 .signal-bar {
+    background-color: #4CAF50;
+}
+
+.center-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+}
+
+.card {
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 8px 36px rgba(79, 140, 255, 0.15);
+    padding: 48px 60px 40px 60px;
+    min-width: 380px;
+    max-width: 520px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.5s;
+}
+
+.card-title {
+    font-size: 1.7em;
+    font-weight: bold;
+    color: #3358e0;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.form-group label {
+    font-size: 1.08em;
+    color: #3358e0;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #d0d7e6;
+    border-radius: 8px;
+    font-size: 1.08em;
+    outline: none;
+    transition: border 0.2s;
+    margin-bottom: 0;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border: 2px solid #4f8cff;
+}
+
+.connect-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #4f8cff 0%, #3358e0 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 0;
+    font-size: 1.18em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    margin-top: 16px;
+}
+
+.connect-btn:disabled {
+    background: #b3cfff;
+    cursor: not-allowed;
+}
+
+.connect-status {
+    margin-top: 24px;
+    font-size: 1.12em;
+    color: #4f8cff;
+    font-weight: bold;
+    letter-spacing: 1px;
+    min-height: 28px;
+}
+
+/* 通信页面布局 */
+.comm-container,
+.calib-container {
+    width: 100%;
+    max-width: 1200px;
+    min-width: 0;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-height: calc(100vh - 64px) !important;
+    height: calc(100vh - 64px) !important;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.main-content-area {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    min-height: 0;
+    height: 100%;
+    width: 100vw;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.comm-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #3358e0;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.comm-output-box {
+    background: #f4f6fb;
+    color: #222;
+    border-radius: 8px;
+    padding: 16px 12px 16px 16px;
+    flex: 1 1 0;
+    min-height: 180px;
+    max-height: 100%;
+    font-family: 'Roboto', monospace;
+    font-size: 1.08em;
+    white-space: pre-wrap;
+    box-shadow: 0 1px 4px rgba(79, 140, 255, 0.04);
+    overflow-y: auto;
+    word-break: break-all;
+    position: relative;
+    margin-bottom: 0;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.clear-btn {
+    background: #e0e7ff;
+    color: #3358e0;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 14px;
+    font-size: 0.98em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin-left: 8px;
+}
+
+.clear-btn:hover {
+    background: #3358e0;
+    color: #fff;
+}
+
+.comm-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.comm-input-row input[type="text"] {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d0d7e6;
+    border-radius: 6px;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.comm-input-row input[type="text"]:focus {
+    border: 1.5px solid #4f8cff;
+}
+
+.comm-input-row select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #d0d7e6;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.comm-input-row button {
+    background: #4f8cff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.comm-input-row button:disabled {
+    background: #b3cfff;
+    cursor: not-allowed;
+}
+
+.comm-input-row button:not(:disabled):hover {
+    background: #3358e0;
+    transform: scale(1.04);
+}
+
+@media (max-width: 1300px) {
+
+    .comm-container,
+    .calib-container {
+        max-width: 98vw;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .comm-container,
+    .calib-container {
+        max-width: 100vw;
+        min-width: 0;
+        border-radius: 0 !important;
+    }
+}
+
+/* 顶部信息栏 */
+#device-info-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1200;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1a1a;
+    padding: 10px 32px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    min-height: 64px;
+}
+
+.logo-section,
+#logo-img {
+    border-radius: 0;
+    overflow: visible;
+}
+
+#logo-img {
+    height: 44px;
+    width: auto;
+    max-width: 120px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.menu-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-bar {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    background: none;
+    animation: fadeIn 0.7s;
+}
+
+.battery-section {
+    width: 200px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.battery-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 新电池图标样式 */
+.battery-outer {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    border: 2.5px solid #fff;
+    border-radius: 7px;
+    background: #23272f;
+    box-shadow: 0 1px 4px rgba(79, 140, 255, 0.10);
+    display: flex;
+    align-items: center;
+    margin-right: 2px;
+}
+
+.battery-head {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 8px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 2px #fff;
+}
+
+.battery-inner {
+    position: absolute;
+    left: 2.5px;
+    top: 2.5px;
+    bottom: 2.5px;
+    width: 0;
+    border-radius: 4px;
+    transition: all 0.4s;
+}
+
+.battery-inner.high {
+    background: linear-gradient(90deg, #2ecc71 60%, #b6fcd5 100%);
+}
+
+.battery-inner.medium {
+    background: linear-gradient(90deg, #f1c40f 60%, #fffbe6 100%);
+}
+
+.battery-inner.low {
+    background: linear-gradient(90deg, #e74c3c 60%, #ffd6d6 100%);
+}
+
+.battery-num {
+    color: #fff;
+    font-weight: 500;
+    font-size: 1.08em;
+    min-width: 40px;
+    letter-spacing: 1px;
+}
+
+/* 菜单栏美化 */
+.menu-btn {
+    background: none;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    letter-spacing: 1px;
+}
+
+.menu-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 24px;
+    right: 24px;
+    height: 2px;
+    background: #fff;
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+.menu-btn:hover::after,
+.menu-btn.active::after {
+    transform: scaleX(1);
+}
+
+.menu-btn.active {
+    color: #fff;
+}
+
+.menu-btn:hover {
+    color: #fff;
+}
+
+.main-flex-root {
+    padding-top: 84px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.wireless-settings {
+    padding: 0 !important;
+    max-width: 100vw;
+    margin: 0;
+    gap: 18px;
+    background: none;
+}
+
+.param-container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px 22px;
+    background: #f4f8ff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.07);
+    border: 1.5px solid #e0e7ff;
+    transition: box-shadow 0.2s, border 0.2s;
+    position: relative;
+}
+
+.setting-item:hover {
+    box-shadow: 0 4px 16px rgba(79, 140, 255, 0.13);
+    border: 1.5px solid #4f8cff;
+}
+
+.setting-label {
+    flex: 1 1 0;
+    font-size: 1.08em;
+    color: #3358e0;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    min-width: 120px;
+    margin-right: 18px;
+    text-align: right;
+}
+
+.setting-control {
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.setting-control input[type="number"] {
+    width: 90px;
+    padding: 8px 10px;
+    border: 1.5px solid #d0d7e6;
+    border-radius: 6px;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.setting-control input[type="number"]:focus {
+    border: 1.5px solid #4f8cff;
+}
+
+.setting-control select {
+    width: 120px;
+    padding: 8px 22px 8px 10px;
+    /* 右侧22px，左侧10px */
+    border-radius: 6px;
+    border: 1.5px solid #d0d7e6;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+    background: #fff;
+}
+
+.setting-control select:focus {
+    border: 1.5px solid #4f8cff;
+}
+
+.setting-control button {
+    padding: 8px 18px;
+    background: linear-gradient(90deg, #4f8cff 0%, #3358e0 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(79, 140, 255, 0.08);
+}
+
+.setting-control button:hover {
+    background: linear-gradient(90deg, #3358e0 0%, #4f8cff 100%);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.13);
+}
+
+.setting-control span {
+    color: #222;
+    font-size: 1.05em;
+    background: none;
+    padding: 0 4px;
+}
+
+@media (max-width: 700px) {
+
+    .wireless-settings,
+    .param-container {
+        padding: 8px 2vw;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px 8px;
+    }
+
+    .setting-label {
+        text-align: left;
+        margin-bottom: 6px;
+    }
+
+    .setting-control {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .setting-control input,
+    .setting-control select {
+        width: 100%;
+    }
+}
+
+.device-info {
+    background: #eaf1ff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.07);
+    border: 1.5px solid #d0d7e6;
+    padding: 18px 22px 10px 22px;
+    margin-bottom: 18px;
+}
+
+/* --- UI美化 --- */
+/* 优化comm-container和param-container宽度、padding、控件尺寸 */
+.comm-container {
+    max-width: 1400px !important;
+    min-width: 900px !important;
+    padding: 32px 32px 24px 32px !important;
+    margin-bottom: 24px !important;
+    min-height: 900px !important;
+    height: auto !important;
+}
+
+.param-container {
+    gap: 10px !important;
+    padding: 4px 2px !important;
+}
+
+.setting-item {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    font-size: 1em !important;
+}
+
+.setting-label {
+    min-width: 90px !important;
+    font-size: 1em !important;
+}
+
+.setting-control input,
+.setting-control select,
+.setting-control button {
+    font-size: 0.98em !important;
+    padding: 5px 8px !important;
+    min-height: 28px !important;
+    height: 28px !important;
+}
+
+.setting-control button {
+    padding: 5px 14px !important;
+}
+
+/* 父菜单样式 */
+.param-folder-root {
+    background: #eaf1ff !important;
+    color: #3358e0 !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    font-size: 1.13em !important;
+    padding-left: 18px !important;
+    margin-bottom: 6px !important;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.07);
+    border: 1.5px solid #e0e7ff;
+}
+
+.param-folder-root .folder-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.param-folder-child {
+    background: #f7faff !important;
+    color: #3358e0 !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    font-size: 1.05em !important;
+    padding-left: 32px !important;
+    margin-bottom: 4px !important;
+    border: 1px solid #e0e7ff;
+}
+
+/* 校准页面样式 */
+.calib-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #3358e0;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.calib-btn-group {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.calib-btn {
+    border: none;
+    border-radius: 8px;
+    background: #eaf1ff;
+    color: #3358e0;
+    font-size: 1.08em;
+    font-weight: 500;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    outline: none;
+}
+
+.calib-btn.active-high {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.calib-btn.active-mid {
+    background: #f1c40f;
+    color: #fff;
+}
+
+.calib-btn.active-low {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.calib-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.calib-slider-label {
+    color: #3358e0;
+    font-weight: 500;
+    min-width: 40px;
+}
+
+.calib-slider {
+    flex: 1;
+    accent-color: #4f8cff;
+    height: 6px;
+    border-radius: 4px;
+}
+
+.calib-slider-value {
+    min-width: 36px;
+    color: #3358e0;
+    font-weight: bold;
+    font-size: 1.08em;
+}
+
+.calib-joystick-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 96px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+}
+
+.calib-joystick-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    position: relative;
+}
+
+.calib-joystick {
+    width: auto !important;
+    height: auto !important;
+    max-width: 140px !important;
+    max-height: 140px !important;
+    min-width: 60px;
+    min-height: 60px;
+    margin: 0;
+    display: block;
+    background: #f4f6fb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.07);
+    border: 1.5px solid #e0e7ff;
+}
+
+.calib-joystick-label {
+    text-align: center;
+    color: #3358e0;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+@media (max-width: 2200px) {
+
+    .calib-joystick,
+    .calib-joystick-wrap {
+        width: 500px !important;
+        height: 500px !important;
+    }
+}
+
+@media (max-width: 1400px) {
+
+    .calib-joystick,
+    .calib-joystick-wrap {
+        width: 140px !important;
+        height: 140px !important;
+        min-width: 60px;
+        min-height: 60px;
+    }
+}
+
+@media (max-width: 900px) {
+
+    .calib-joystick,
+    .calib-joystick-wrap {
+        width: 120px !important;
+        height: 120px !important;
+        min-width: 50px;
+        min-height: 50px;
+    }
+
+    .calib-joystick-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+    }
+}
+
+/* 设备校准页面全白背景 */
+#page-calib {
+    background: #fff !important;
+    min-height: calc(100vh - 64px);
+    width: 100vw;
+    position: relative;
+    z-index: 1;
+}
+
+.progress-bar {
+    position: relative;
+    height: 26px;
+    /* 与圆点高度一致 */
+    box-sizing: border-box;
+    background: none;
+}
+
+.progress-bar .bar-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #b3cfff;
+    border-radius: 2px;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.progress-dot {
+    position: absolute;
+    top: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    box-shadow: 0 2px 12px #b3cfff;
+    border: 3px solid #fff;
+    transition: left 0.3s;
+    z-index: 2;
+    background: #2ecc71;
+    /* 或 #4f8cff */
+}
+
+.keymode-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: linear-gradient(90deg, #eaf1ff 0%, #c3dafe 100%);
+    border: 1.5px solid #3358e0;
+    border-radius: 8px;
+    padding: 8px 28px 8px 12px;
+    font-size: 1.08em;
+    font-family: 'Roboto', monospace;
+    color: #3358e0;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(51, 88, 224, 0.08);
+    transition: border 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    outline: none;
+    margin-bottom: 2px;
+    min-width: 80px;
+    text-align: center;
+    background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%233358e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 18px 18px;
+}
+
+.keymode-select:focus,
+.keymode-select:hover {
+    border: 2px solid #5a7cff;
+    box-shadow: 0 4px 16px rgba(51, 88, 224, 0.13);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    background: #eaf1ff;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 12px;
+    gap: 16px;
+}
+
+.setting-label {
+    color: #3358e0;
+    font-weight: 500;
+    width: 120px;
+    /* 固定宽度，保证对齐 */
+    text-align: left;
+    /* 左对齐 */
+    flex-shrink: 0;
+    /* 防止被压缩 */
+}
+
+input[type="range"] {
+    flex: 1;
+    max-width: 300px;
+    margin: 0 12px;
+}
+
+.setting-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 120px;
+    justify-content: flex-end;
+}
+
+.setting-value {
+    font-family: 'Roboto', monospace;
+    font-size: 1.08em;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* 进度弹窗核心样式 */
+.progress-modal {
+    position: fixed;
+    z-index: 9999;
+    /* 确保层级最高 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    /* 默认隐藏 */
+}
+
+/* 激活状态：显示弹窗 */
+.progress-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+/* 遮罩层：半透+模糊，阻止交互 */
+.progress-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    /* 毛玻璃效果，增强质感 */
+}
+
+/* 弹窗主体：白色卡片，圆角+阴影，与现有按钮风格统一 */
+.progress-modal__content {
+    position: relative;
+    width: 320px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    animation: scaleIn 0.3s ease;
+}
+
+/* 进度条容器：灰色背景 */
+.progress-bar-back {
+    width: 100%;
+    height: 6px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* 进度条填充：主色蓝色，与现有按钮一致 */
+.progress-bar__fill {
+    height: 100%;
+    background: #165DFF;
+    transition: width 0.3s ease;
+    /* 平滑过渡 */
+}
+
+/* 关闭按钮样式 */
+.progress-modal__header {
+    position: relative;
+    padding-right: 30px;
+    /* 为关闭按钮预留空间 */
+}
+
+.progress-modal__close {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+/* 核心：设置图标颜色为黑色 */
+.progress-modal__close i {
+    color: #000;
+    font-size: 16px;
+}
+
+/* hover 时按钮背景和图标颜色优化 */
+.progress-modal__close:hover {
+    background-color: #f0f0f0;
+}
+
+.progress-modal__close:hover i {
+    color: #222;
+}
+
+/* 聚焦样式优化 */
+.progress-modal__close:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.progress-modal__close:focus i {
+    color: #000;
+}
+
+/* 关闭按钮内的图标：默认深灰色，清晰可见 */
+.progress-modal__close i {
+    color: #333;
+    /* 深灰色，可根据设计调整为 #000（纯黑） */
+    font-size: 16px;
+    /* 可选：调整图标大小，让视觉更清晰 */
+}
+
+/* 鼠标悬浮时：颜色加深，增强交互反馈 */
+.progress-modal__close:hover i {
+    color: #000;
+    /* 悬浮时纯黑，更突出 */
+}
+
+.progress-modal__close {
+    /* 新增：默认浅灰边框，让按钮轮廓可见 */
+    border: 1px solid #e0e0e0;
+    background-color: #fafafa;
+    /* 浅灰背景，与图标颜色形成层次 */
+}
+
+.progress-modal__close:hover {
+    border-color: #ccc;
+    background-color: #f0f0f0;
+    /* 悬浮时背景加深 */
+}
+
+/* 关闭按钮 - 纯CSS绘制叉叉 */
+.progress-modal__close {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+/* 用伪元素绘制叉叉 */
+.progress-modal__close::before,
+.progress-modal__close::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 16px;
+    background-color: #333;
+    /* 叉叉颜色：深灰色，确保清晰可见 */
+    border-radius: 1px;
+}
+
+/* 第一条线：从左上到右下 */
+.progress-modal__close::before {
+    transform: rotate(45deg);
+    left: 11px;
+    /* 水平居中 */
+}
+
+/* 第二条线：从右上到左下 */
+.progress-modal__close::after {
+    transform: rotate(-45deg);
+    left: 11px;
+    /* 水平居中 */
+}
+
+/* 鼠标悬停效果 */
+.progress-modal__close:hover {
+    background-color: #f0f0f0;
+}
+
+.progress-modal__close:hover::before,
+.progress-modal__close:hover::after {
+    background-color: #000;
+    /* 悬停时颜色加深 */
+}
+
+/* 聚焦样式 */
+.progress-modal__close:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+#calib-bar-rv {
+    transform: scaleY(-1);
+
+}
+
+#calib-bar-lv {
+    transform: scaleY(-1);
+
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#lang-switcher {
+    position: static;
+    margin-left: 18px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    user-select: none;
+}
